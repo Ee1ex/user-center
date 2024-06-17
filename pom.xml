@@ -48,7 +48,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
+            <scope>8.0.34</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
