@@ -10,3 +10,6 @@ spring:
     password: zhoujielun133
     driver-class-name: com.mysql.cj.jdbc.Driver
     useSSL: false
+mybatis-plus:
+  configuration:
+   map-underscore-to-camel-case: false
