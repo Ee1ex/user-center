@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.eelex.usercenterbackend.service.UserService;
 import com.eelex.usercenterbackend.domain.User;
 import com.eelex.usercenterbackend.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,11 +24,17 @@ import static com.sun.javafx.font.FontResource.SALT;
 * @createDate 2024-06-18 02:29:18
 */
 @Service
-public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-    implements UserService {
+@Slf4j
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    private static final String USER_LOGIN_STATE = "userLoginState" ;
     @Resource
     private UserMapper UserMapper; //注入可以直接用userMapper来操作数据库
+
+
+    //盐值,混淆密码
+    private static final String SALT = "eelex";
+
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -65,7 +73,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
 
         //2.对密码进行加密
-        final String SALT = "eelex";
         userPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         checkPassword = DigestUtils.md5DigestAsHex((SALT + checkPassword).getBytes());
 
@@ -84,7 +91,69 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     }
-}
+
+
+
+    @Override
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        // 1. 校验
+        //修改为自定义异常
+        //非空
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+        //账户不小于4位
+        if (userAccount.length() < 4) {
+            return null;
+        }
+        //密码不小于8位
+        if (userPassword.length() < 8 ) {
+            return null;
+        }
+
+        // 账户不能包含特殊字符
+        String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            return null;
+        }
+
+        //2.对密码进行加密
+        //这里和checkpassword做了区分
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        //账户不能重复,查询用户是否存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPassword", encryptPassword);
+        User user = UserMapper.selectOne(queryWrapper);
+        //用户不存在
+        if (user == null) {
+            log.info("user login failed, userAccount cannot match userPassword");
+            return null;
+        }
+
+        //3.用户脱敏
+        User safetyUser = new User();
+        safetyUser.setId(user.getId());
+        safetyUser.setUsername(user.getUsername());
+        safetyUser.setUserAccount(user.getUserAccount());
+        safetyUser.setAvatarUrl(user.getAvatarUrl());
+        safetyUser.setGender(user.getGender());
+
+        safetyUser.setPhone(user.getPhone());
+        safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserStatus(user.getUserStatus());
+        safetyUser.setCreateTime(user.getCreateTime());
+        safetyUser.setUserRole(user.getUserRole());
+
+
+
+        //4.记录用户的登录态
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
+        return safetyUser;
+    }}
+
+
 
 
 
