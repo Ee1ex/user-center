@@ -2,6 +2,7 @@ server:
    port: 8085
 
 
+
 spring:
   application:
     name: user-center
@@ -11,6 +12,11 @@ spring:
     password: zhoujielun133
     driver-class-name: com.mysql.cj.jdbc.Driver
     useSSL: false
+  # session 配置
+  session :
+    timeout: 86400
+
+
 mybatis-plus:
   global-config:
     db-config:

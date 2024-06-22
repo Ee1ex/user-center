@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 
 
 
+
+
 public interface UserService extends IService<User> {
     /**
      *用户注册
@@ -32,5 +34,16 @@ public interface UserService extends IService<User> {
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
+    /**
+     * 用户登录态键
+     * @createDate 2024-06-18 02:29:18
+     */
+    String USER_LOGIN_STATE = "UserLoginState";
 
+    /**
+     * 获取脱敏后的用户信息
+     * @param originUser
+     * @return
+     */
+    User getSafetyUser(User originUser);
 }
