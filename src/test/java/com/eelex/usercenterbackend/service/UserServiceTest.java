@@ -46,35 +46,36 @@ public class UserServiceTest {
         String userAccount = "Eelex";
         String userPassword = "";
         String checkPassword = "12345678";
-        long result =userService.userRegister(userAccount, userPassword, checkPassword);
+        String planetCode = "1";
+        long result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
         userAccount = "Ee";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
         userAccount = "Eelex";
         userPassword = "123456";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
         userAccount = "y pi";
         userPassword = "12345678";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
 
         checkPassword = "123456789";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
         userAccount = "eelex";
         checkPassword = "12345678";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
         userAccount = "Eelex";
-        result =userService.userRegister(userAccount, userPassword, checkPassword);
+        result =userService.userRegister(userAccount, userPassword, checkPassword,planetCode);
         Assertions.assertEquals(-1, result);//断言
 
     }

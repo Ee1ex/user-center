@@ -37,10 +37,11 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (userAccount == null || userPassword == null || checkPassword == null) {
+        String planetCode = userRegisterRequest.getPlanetCode();
+        if (userAccount == null || userPassword == null || checkPassword == null|| planetCode == null) {
             return null;
         }//controller层校验 倾向于对请求本身的校验 不设计业务逻辑
-        return userService.userRegister(userAccount, userPassword, checkPassword);
+        return userService.userRegister(userAccount, userPassword, checkPassword, planetCode);
 
 
 
@@ -105,6 +106,15 @@ public class UserController {
 
         return loginUser != null && loginUser.getUserRole() == ADMIN_ROLE;
 
+    }
+
+    //用户注销接口
+    @PostMapping( "/logout")
+    public Integer userLogout(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return userService.userLogout(request);
     }
 
 

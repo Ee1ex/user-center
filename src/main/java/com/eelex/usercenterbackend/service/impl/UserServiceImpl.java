@@ -38,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
         // 1. 校验
         //非空
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
@@ -53,13 +53,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return -1;
         }
 
+        //校验星球编号
+        if (planetCode.length() > 5 ) {
+            return -1;
+        }
+
         // 账户不能包含特殊字符
+
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
             return -1;
         }
-
+        //不能包含空格
+        if (userAccount.contains(" ")) {
+            return -1;
+        }
         //密码和校验密码相同
         if (!userPassword.equals(checkPassword)) {
             return -1;
@@ -72,6 +81,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (count > 0) {  //已经有人注册了
             return -1;
         }
+        //星球编号不能重复
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("planetCode", planetCode);
+        count = UserMapper.selectCount(queryWrapper);
+        if (count > 0) {  //已经有人注册了
+            return -1;
+        }
+
 
         //2.对密码进行加密
         userPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -115,7 +132,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 账户不能包含特殊字符
         String validPattern = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
-        if (matcher.find()) {
+        //不能包含空格
+        if (userAccount.contains(" ")) {
+            return null;
+        }
+        if (matcher.find( )) {
             return null;
         }
 
@@ -159,7 +180,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      safetyUser.setUserStatus(originUser.getUserStatus());
      safetyUser.setCreateTime(originUser.getCreateTime());
      safetyUser.setUserRole(originUser.getUserRole());
+     safetyUser.setPlanetCode(originUser.getPlanetCode());
      return safetyUser;
+    }
+    /**
+     * 用户注销
+     * @createDate 2024-06-18 02:29:18
+     * @param request
+     * @return
+     */
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        //移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
     }
 
 
