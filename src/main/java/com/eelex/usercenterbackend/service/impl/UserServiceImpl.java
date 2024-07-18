@@ -41,7 +41,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public long userRegister(String userAccount, String userPassword, String checkPassword, String planetCode) {
         // 1. 校验
         //非空
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode)) {
             return -1;
         }
         //账户不小于4位
@@ -57,6 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (planetCode.length() > 5 ) {
             return -1;
         }
+
 
         // 账户不能包含特殊字符
 
@@ -140,6 +141,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return null;
         }
 
+
+
         //2.对密码进行加密
         //这里和checkpassword做了区分
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -158,7 +161,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User safetyUser = getSafetyUser(user);
         //4.记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
-        return safetyUser;
+        return user;
+
+
     }
 
     /**
@@ -194,6 +199,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //移除登录态
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
+
     }
 
 
